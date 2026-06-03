@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ANTHROPHONY — The Sound of Humanity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CSS RESET & ROOT VARIABLES
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #070B14;
+  --card:      #101827;
+  --card2:     #131f30;
+  --border:    rgba(255,255,255,0.08);
+  --border2:   rgba(255,255,255,0.14);
+  --text:      #FFFFFF;
+  --muted:     #A8B2C7;
+  --accent:    #7DD3FC;
+  --accent2:   #38BDF8;
+  --success:   #4ADE80;
+  --warning:   #FBBF24;
+  --danger:    #FB7185;
+  --gold:      #F59E0B;
+  --purple:    #A78BFA;
+  --nav-h:     72px;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(125,211,252,0.25); border-radius: 4px; }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================================
+   PAGES
+   ============================================================ */
+.pages {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: calc(var(--nav-h) + 16px);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .32s ease, transform .32s ease;
+  pointer-events: none;
+}
+.page.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+.page-inner { padding: 0 16px; }
+
+/* ============================================================
+   BOTTOM NAVIGATION
+   ============================================================ */
+nav {
+  height: var(--nav-h);
+  background: rgba(7,11,20,.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color .2s ease;
+  position: relative;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.nav-item.active { color: var(--accent); }
+.nav-item .nav-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.nav-item.active .nav-icon { transform: scale(1.2); }
+.nav-item .nav-dot {
+  position: absolute;
+  top: 10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.nav-item.active .nav-dot { opacity: 1; }
+.nav-label { font-size: 10px; font-weight: 500; letter-spacing: .5px; }
+nav svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card-sm {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+.badge-accent  { background: rgba(125,211,252,.12); color: var(--accent); border: 1px solid rgba(125,211,252,.2); }
+.badge-success { background: rgba(74,222,128,.12); color: var(--success); border: 1px solid rgba(74,222,128,.2); }
+.badge-gold    { background: rgba(245,158,11,.12);  color: var(--gold);    border: 1px solid rgba(245,158,11,.2); }
+.badge-muted   { background: rgba(168,178,199,.08); color: var(--muted);   border: 1px solid var(--border); }
+.badge-purple  { background: rgba(167,139,250,.12); color: var(--purple);  border: 1px solid rgba(167,139,250,.2); }
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.section-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.4px;
+}
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.page-header {
+  padding: 20px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -.6px;
+}
+.header-action {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ============================================================
+   DISCOVER PAGE
+   ============================================================ */
+.daily-card {
+  background: linear-gradient(135deg, rgba(125,211,252,.08) 0%, rgba(56,189,248,.04) 100%);
+  border: 1px solid rgba(125,211,252,.18);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.daily-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(125,211,252,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.daily-text h3 { font-size: 13px; font-weight: 700; }
+.daily-text p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.daily-stat    { font-size: 11px; font-weight: 600; color: var(--accent); }
+
+/* Field Recording Hero */
+.hero-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+}
+.hero-bg {
+  background: linear-gradient(160deg, #0E1D35 0%, #071120 60%, #070B14 100%);
+  border: 1px solid var(--border);
+  padding: 24px 20px 20px;
+  position: relative;
+}
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(125,211,252,.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.field-id {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.field-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.field-question {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -.3px;
+  margin-bottom: 20px;
+}
+
+/* Audio Player */
+.audio-player {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.audio-waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 40px;
+  margin-bottom: 12px;
+}
+.wave-bar {
+  flex: 1;
+  background: rgba(125,211,252,.25);
+  border-radius: 2px;
+  min-height: 4px;
+  transition: background .2s;
+}
+.wave-bar.played { background: var(--accent); }
+.wave-bar.active { background: var(--accent2); animation: pulse-bar .6s ease infinite alternate; }
+@keyframes pulse-bar { to { opacity: .5; } }
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.play-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s, box-shadow .15s;
+}
+.play-btn:active { transform: scale(.92); }
+.play-btn svg { width: 16px; height: 16px; fill: currentColor; stroke: none; }
+.audio-progress { flex: 1; }
+.progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width .3s linear;
+  width: 0%;
+}
+.audio-times { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* Choice cards */
+.choices-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.choice-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.choice-card:active { transform: scale(.96); }
+.choice-card.selected {
+  border-color: var(--accent);
+  background: rgba(125,211,252,.06);
+}
+.choice-card.correct {
+  border-color: var(--success);
+  background: rgba(74,222,128,.06);
+}
+.choice-card.wrong {
+  border-color: var(--danger);
+  background: rgba(251,113,133,.06);
+}
+.choice-region {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.choice-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+.choice-check {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+.choice-card.correct .choice-check { background: rgba(74,222,128,.2); color: var(--success); }
+.choice-card.wrong   .choice-check { background: rgba(251,113,133,.2); color: var(--danger); }
+
+/* Analysis screen */
+#analysis-screen {
+  display: none;
+  animation: fadeSlideUp .4s ease forwards;
+}
+#analysis-screen.visible { display: block; }
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.analysis-header {
+  text-align: center;
+  padding: 28px 0 20px;
+}
+.analysis-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(74,222,128,.12);
+  border: 1.5px solid rgba(74,222,128,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  animation: ping-scale .6s ease;
+}
+@keyframes ping-scale {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.analysis-title { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+.analysis-sub   { font-size: 13px; color: var(--muted); }
+
+.trait-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.trait-item {
+  background: rgba(125,211,252,.05);
+  border: 1px solid rgba(125,211,252,.12);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.trait-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px var(--accent);
+}
+.trait-name { font-size: 14px; font-weight: 600; }
+.trait-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.unlock-card {
+  background: linear-gradient(135deg, rgba(125,211,252,.08) 0%, rgba(167,139,250,.06) 100%);
+  border: 1px solid rgba(125,211,252,.2);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+}
+.unlock-label { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+.unlock-name  { font-size: 26px; font-weight: 900; letter-spacing: -.5px; margin-bottom: 6px; }
+.unlock-row   { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+.reward-tag   {
+  background: rgba(74,222,128,.1);
+  border: 1px solid rgba(74,222,128,.25);
+  border-radius: 99px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--success);
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.try-again-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+  margin-top: 8px;
+}
+.try-again-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================================
+   EXPLORE PAGE
+   ============================================================ */
+.globe-container {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  margin: 0 0 24px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.globe-canvas {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #080F1F 0%, #040810 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+canvas#globeCanvas {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: var(--radius);
+}
+.globe-label {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.regions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.region-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.region-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--rc-color, rgba(125,211,252,.06)) 0%, transparent 60%);
+}
+.region-card:active { transform: scale(.96); }
+.region-card:hover { border-color: rgba(255,255,255,.18); }
+.rc-icon { font-size: 24px; margin-bottom: 8px; line-height: 1; }
+.rc-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+.rc-count { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+.rc-progress {
+  height: 3px;
+  background: rgba(255,255,255,.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.rc-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--rc-color, var(--accent)), rgba(125,211,252,.5));
+}
+
+/* ============================================================
+   COLLECTION PAGE
+   ============================================================ */
+.museum-stats {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+.stat-card {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 10px;
+  text-align: center;
+}
+.stat-num  { font-size: 20px; font-weight: 900; color: var(--accent); letter-spacing: -.5px; }
+.stat-lab  { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 500; line-height: 1.3; }
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.artifact-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 14px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.artifact-card:active { transform: scale(.96); }
+.artifact-card:hover  { border-color: rgba(255,255,255,.2); }
+.artifact-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.artifact-name   { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+.artifact-origin { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+.rarity-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.08); overflow: hidden; }
+.rarity-fill { height: 100%; border-radius: 2px; }
+
+/* Archive Progress */
+.archive-section {
+  background: linear-gradient(135deg, #0C1828 0%, #070B14 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.archive-ring {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+.archive-ring svg { transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: rgba(255,255,255,.06); stroke-width: 8; }
+.ring-progress {
+  fill: none;
+  stroke: url(#ringGrad);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 339;
+  stroke-dashoffset: 200;
+  transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);
+}
+.ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ring-num  { font-size: 26px; font-weight: 900; letter-spacing: -1px; }
+.ring-den  { font-size: 11px; color: var(--muted); }
+.archive-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.archive-sub   { font-size: 13px; color: var(--muted); }
+
+/* ============================================================
+   EXPEDITIONS PAGE
+   ============================================================ */
+.expedition-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.expedition-card:active { transform: scale(.98); }
+.expedition-card:hover  { border-color: rgba(255,255,255,.18); }
+.expedition-banner {
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.expedition-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(7,11,20,.9) 0%, rgba(7,11,20,.2) 100%);
+}
+.exp-region-icon {
+  font-size: 52px;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: .35;
+  filter: grayscale(.4);
+}
+.exp-content { padding: 16px; }
+.exp-name { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.exp-desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+.exp-meta { display: flex; align-items: center; gap: 8px; }
+.exp-progress-wrap { flex: 1; }
+.exp-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.exp-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+}
+.exp-pct { font-size: 11px; color: var(--muted); }
+
+/* Expedition detail page */
+#expedition-detail {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  overflow-y: auto;
+  padding-bottom: 100px;
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  z-index: 50;
+}
+#expedition-detail.open { transform: translateX(0); }
+.detail-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 16px 0;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+.detail-back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+.detail-banner {
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  margin: 16px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+.detail-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(7,11,20,1) 0%, rgba(7,11,20,.1) 100%);
+}
+.detail-icon {
+  font-size: 80px;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-55%);
+  opacity: .3;
+}
+.detail-inner { padding: 0 16px; }
+.detail-title { font-size: 28px; font-weight: 900; margin-bottom: 6px; letter-spacing: -.6px; }
+.detail-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+.milestone-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+.milestone-line {
+  position: absolute;
+  left: 19px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.milestone {
+  display: flex;
+  gap: 14px;
+  padding: 0 0 24px;
+  position: relative;
+}
+.m-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+  transition: border-color .2s;
+}
+.milestone.done .m-dot { border-color: var(--success); background: rgba(74,222,128,.1); }
+.milestone.active .m-dot { border-color: var(--accent); background: rgba(125,211,252,.1); box-shadow: 0 0 12px rgba(125,211,252,.2); }
+.m-info { padding-top: 8px; flex: 1; }
+.m-year { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+.m-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.m-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.m-reward {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(74,222,128,.08);
+  border: 1px solid rgba(74,222,128,.2);
+  border-radius: 99px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--success);
+}
+
+/* ============================================================
+   PROFILE PAGE
+   ============================================================ */
+.profile-hero {
+  text-align: center;
+  padding: 30px 0 20px;
+}
+.avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(125,211,252,.2) 0%, rgba(167,139,250,.2) 100%);
+  border: 2px solid rgba(125,211,252,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 14px;
+  position: relative;
+}
+.avatar-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(125,211,252,.15);
+}
+.profile-name { font-size: 22px; font-weight: 900; letter-spacing: -.3px; }
+.profile-rank { font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 4px; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+.stat-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.stat-item-num { font-size: 24px; font-weight: 900; letter-spacing: -.5px; }
+.stat-item-lab { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+.achievements-section h2 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.achievement-list { display: flex; flex-direction: column; gap: 10px; }
+.achievement {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ach-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.ach-name { font-size: 14px; font-weight: 700; }
+.ach-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ach-locked { opacity: .35; }
+
+/* ============================================================
+   ARCHIVIST PANEL
+   ============================================================ */
+#archivist-btn {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 16px);
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1E3A5F 0%, #0E2040 100%);
+  border: 1.5px solid rgba(125,211,252,.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 20px rgba(125,211,252,.1);
+  transition: transform .2s, box-shadow .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+#archivist-btn:active { transform: scale(.92); }
+#archivist-btn .archivist-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(125,211,252,.2);
+  animation: archivist-ring 2.5s ease infinite;
+}
+@keyframes archivist-ring {
+  0%   { transform: scale(1);   opacity: .8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+#archivist-panel {
+  position: fixed;
+  bottom: 0; left: 50%; right: 0;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%;
+  max-width: 480px;
+  background: #0C1624;
+  border: 1px solid rgba(125,211,252,.15);
+  border-bottom: none;
+  border-radius: 24px 24px 0 0;
+  z-index: 300;
+  transition: transform .38s cubic-bezier(.32,0,.15,1);
+  max-height: 75dvh;
+  display: flex;
+  flex-direction: column;
+}
+#archivist-panel.open { transform: translateX(-50%) translateY(0); }
+.panel-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,.15);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(125,211,252,.15) 0%, rgba(167,139,250,.1) 100%);
+  border: 1px solid rgba(125,211,252,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.panel-name { font-size: 14px; font-weight: 700; }
+.panel-status { font-size: 11px; color: var(--accent); }
+.close-panel {
+  margin-left: auto;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.msg {
+  max-width: 85%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.msg-archivist {
+  background: rgba(125,211,252,.08);
+  border: 1px solid rgba(125,211,252,.12);
+  align-self: flex-start;
+  border-radius: 4px 14px 14px 14px;
+}
+.msg-user {
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  align-self: flex-end;
+  border-radius: 14px 4px 14px 14px;
+}
+.msg-note {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.chat-input-wrap {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+.chat-input {
+  flex: 1;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 10px 16px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.chat-input::placeholder { color: var(--muted); }
+.chat-input:focus { border-color: rgba(125,211,252,.35); }
+.chat-send {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  color: var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s;
+}
+.chat-send:active { transform: scale(.9); }
+.chat-send svg { width: 16px; height: 16px; fill: currentColor; stroke: none; }
+
+/* Backdrop */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 250;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.backdrop.visible { opacity: 1; pointer-events: all; }
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #0C1624;
+  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(255,255,255,.1);
+  border-bottom: none;
+  max-height: 85dvh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.32,0,.15,1);
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,.15);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+.modal-inner { padding: 20px 20px 0; }
+.modal-icon { font-size: 48px; margin-bottom: 14px; line-height: 1; }
+.modal-title { font-size: 24px; font-weight: 900; margin-bottom: 6px; letter-spacing: -.4px; }
+.modal-sub { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+
+/* Sound DNA bars */
+.dna-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.dna-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.dna-region { font-size: 12px; color: var(--muted); width: 110px; flex-shrink: 0; }
+.dna-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.dna-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  width: 0%;
+  transition: width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.dna-pct { font-size: 12px; font-weight: 700; color: var(--accent); width: 36px; text-align: right; flex-shrink: 0; }
+
+/* Detail rows */
+.detail-rows { display: flex; flex-direction: column; gap: 0; }
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.detail-row:last-child { border-bottom: none; }
+.dr-label { font-size: 12px; color: var(--muted); }
+.dr-value { font-size: 13px; font-weight: 600; }
+
+/* ============================================================
+   LOADING / ANIMATED SCANNING
+   ============================================================ */
+.scan-anim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 0;
+}
+.scan-ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid rgba(125,211,252,.15);
+  border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-text { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+/* ============================================================
+   MISC ANIMATIONS
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn .4s ease forwards; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- ============================================================
+       PAGES
+       ============================================================ -->
+  <div class="pages">
+
+    <!-- ==================== DISCOVER PAGE ==================== -->
+    <section class="page active" id="page-discover">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <div class="section-label">Daily Field Session</div>
+            <h1>Discover</h1>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M12 14c-6 0-8 3-8 3v1h16v-1s-2-3-8-3z"/></svg>
+          </div>
+        </div>
+
+        <!-- Daily Discovery Banner -->
+        <div class="daily-card">
+          <div class="daily-icon">🎵</div>
+          <div class="daily-text">
+            <h3>Today's Recording</h3>
+            <p class="daily-stat">Only 3% of explorers identified this correctly.</p>
+            <p>Can you beat the archive?</p>
+          </div>
+        </div>
+
+        <!-- Field Recording Hero -->
+        <div class="hero-card" id="discovery-card">
+          <div class="hero-bg">
+            <div class="field-id">Field Recording #0417</div>
+            <div class="field-subtitle">Origin Unknown · Duration 2:47 · Captured 1989, Remote Region</div>
+            <div class="field-question">Can you identify this acoustic tradition?</div>
+
+            <!-- Audio Player -->
+            <div class="audio-player">
+              <div class="audio-waveform" id="waveform"></div>
+              <div class="audio-controls">
+                <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                  <svg id="play-icon" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg>
+                </button>
+                <div class="audio-progress">
+                  <div class="progress-bar" onclick="seekAudio(event)">
+                    <div class="progress-fill" id="audioProgress"></div>
+                  </div>
+                  <div class="audio-times">
+                    <span id="currentTime">0:00</span>
+                    <span>2:47</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Multiple Choice -->
+            <div id="choices-section">
+              <div class="choices-label">Select Region of Origin</div>
+              <div class="choices-grid">
+                <div class="choice-card" onclick="selectAnswer(this, false)">
+                  <div class="choice-region">Arctic Circle</div>
+                  <div class="choice-sub">Polar tradition</div>
+                  <div class="choice-check"></div>
+                </div>
+                <div class="choice-card" onclick="selectAnswer(this, true)">
+                  <div class="choice-region">Silk Road</div>
+                  <div class="choice-sub">Central Asian route</div>
+                  <div class="choice-check"></div>
+                </div>
+                <div class="choice-card" onclick="selectAnswer(this, false)">
+                  <div class="choice-region">Andes Highlands</div>
+                  <div class="choice-sub">South American plateau</div>
+                  <div class="choice-check"></div>
+                </div>
+                <div class="choice-card" onclick="selectAnswer(this, false)">
+                  <div class="choice-region">Pacific Islands</div>
+                  <div class="choice-sub">Oceanic archipelago</div>
+                  <div class="choice-check"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analysis Screen (hidden until answer) -->
+        <div id="analysis-screen">
+          <div class="analysis-header">
+            <div class="analysis-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>
+            </div>
+            <div class="analysis-title">Analysis Complete</div>
+            <div class="analysis-sub">Acoustic signature successfully classified</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="section-label">Acoustic Traits Identified</div>
+          <div class="trait-list">
+            <div class="trait-item" style="animation-delay:.1s">
+              <div class="trait-dot"></div>
+              <div>
+                <div class="trait-name">Polyphonic Texture</div>
+                <div class="trait-desc">Simultaneous melodic layers produced by a single vocalist</div>
+              </div>
+            </div>
+            <div class="trait-item" style="animation-delay:.2s">
+              <div class="trait-dot" style="background:#A78BFA;box-shadow:0 0 8px #A78BFA"></div>
+              <div>
+                <div class="trait-name">Ritual Chant Structure</div>
+                <div class="trait-desc">Ceremonial patterns tied to seasonal traditions</div>
+              </div>
+            </div>
+            <div class="trait-item" style="animation-delay:.3s">
+              <div class="trait-dot" style="background:#4ADE80;box-shadow:0 0 8px #4ADE80"></div>
+              <div>
+                <div class="trait-name">Oral Tradition Origins</div>
+                <div class="trait-desc">Transmitted across generations without written notation</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="unlock-card">
+            <div class="unlock-label">New Archive Entry Unlocked</div>
+            <div class="unlock-name">Khöömei</div>
+            <div class="unlock-row">
+              <span class="badge badge-purple">Vocal Tradition</span>
+              <span class="badge badge-success">Catalogued</span>
+            </div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px;">
+              Overtone singing from the Tuvan and Mongolian steppes. Practitioners produce harmonic tones simultaneously — a single voice becomes an orchestra.
+            </div>
+            <div class="reward-tag">+ Research Progress Unlocked</div>
+          </div>
+
+          <button class="try-again-btn" onclick="resetDiscovery()">↺ Try Another Recording</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== EXPLORE PAGE ==================== -->
+    <section class="page" id="page-explore">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <div class="section-label">World Archive</div>
+            <h1>Explore</h1>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+        </div>
+
+        <!-- Stylized Globe -->
+        <div class="globe-container">
+          <div class="globe-canvas">
+            <canvas id="globeCanvas"></canvas>
+          </div>
+          <div class="globe-label">Interactive Cultural Archive · Tap a Region</div>
+        </div>
+
+        <div class="section-label" style="margin-bottom:12px">Regions</div>
+        <div class="regions-grid" id="regionsGrid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== COLLECTION PAGE ==================== -->
+    <section class="page" id="page-collection">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <div class="section-label">Personal Archive</div>
+            <h1>Your Museum</h1>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="museum-stats">
+          <div class="stat-card">
+            <div class="stat-num">147</div>
+            <div class="stat-lab">Cultures Archived</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">51</div>
+            <div class="stat-lab">Instruments Documented</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">19</div>
+            <div class="stat-lab">Expeditions Completed</div>
+          </div>
+        </div>
+
+        <!-- Archive Progress Ring -->
+        <div class="archive-section">
+          <div class="archive-ring">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#7DD3FC"/>
+                  <stop offset="100%" style="stop-color:#A78BFA"/>
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="60" cy="60" r="54"/>
+              <circle class="ring-progress" id="archiveRing" cx="60" cy="60" r="54"/>
+            </svg>
+            <div class="ring-text">
+              <div class="ring-num">412</div>
+              <div class="ring-den">of 1000</div>
+            </div>
+          </div>
+          <div class="archive-title">Human Resonance Archive</div>
+          <div class="archive-sub">Cultures Documented — 41.2% Complete</div>
+        </div>
+
+        <div class="section-label" style="margin-bottom:12px">Artifact Collection</div>
+        <div class="collection-grid" id="collectionGrid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== EXPEDITIONS PAGE ==================== -->
+    <section class="page" id="page-expeditions">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <div class="section-label">Story Missions</div>
+            <h1>Expeditions</h1>
+          </div>
+        </div>
+        <div id="expeditionList"></div>
+      </div>
+
+      <!-- Expedition Detail Overlay -->
+      <div id="expedition-detail">
+        <div class="detail-back" onclick="closeExpedition()">
+          <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+          Back to Expeditions
+        </div>
+        <div class="detail-banner" id="detailBanner">
+          <div class="detail-icon" id="detailIcon"></div>
+          <div style="position:relative;z-index:1">
+            <div class="section-label" id="detailRegion"></div>
+          </div>
+        </div>
+        <div class="detail-inner">
+          <div class="detail-title" id="detailTitle"></div>
+          <div class="detail-subtitle" id="detailSubtitle"></div>
+          <div class="section-label" style="margin-bottom:16px">Chapter Timeline</div>
+          <div class="milestone-list" id="milestoneList">
+            <div class="milestone-line"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROFILE PAGE ==================== -->
+    <section class="page" id="page-profile">
+      <div class="page-inner">
+        <div class="profile-hero">
+          <div class="avatar">
+            🧭
+            <div class="avatar-ring"></div>
+          </div>
+          <div class="profile-name">Explorer_041</div>
+          <div class="profile-rank">Field Researcher · Rank IV</div>
+          <div style="margin-top:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+            <span class="badge badge-accent">Active Season 3</span>
+            <span class="badge badge-gold">Top 12% Global</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-item-num" style="color:var(--accent)">284</div>
+            <div class="stat-item-lab">Total Discoveries</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-item-num" style="color:var(--purple)">147</div>
+            <div class="stat-item-lab">Cultures Archived</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-item-num" style="color:var(--success)">312</div>
+            <div class="stat-item-lab">Hours Explored</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-item-num" style="color:var(--gold)">19</div>
+            <div class="stat-item-lab">Expeditions Completed</div>
+          </div>
+        </div>
+
+        <!-- Museum completion bar -->
+        <div class="card-sm" style="padding:16px;margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:700">Museum Completion</div>
+            <div style="font-size:14px;font-weight:700;color:var(--accent)">41.2%</div>
+          </div>
+          <div class="progress-bar" style="height:6px">
+            <div class="progress-fill" style="width:41.2%;transition:width 1.2s ease"></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px">412 / 1000 cultures documented</div>
+        </div>
+
+        <div class="achievements-section">
+          <h2>Achievements</h2>
+          <div class="achievement-list" id="achievementList"></div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+    </section>
+
+  </div><!-- /pages -->
+
+  <!-- ============================================================
+       BOTTOM NAVIGATION
+       ============================================================ -->
+  <nav>
+    <div class="nav-item" data-page="explore" onclick="switchPage('explore')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-5 5M9.5 9.5l5 5"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <span class="nav-label">Explore</span>
+    </div>
+    <div class="nav-item active" data-page="discover" onclick="switchPage('discover')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="m12 8-4 8 4-2 4 2z"/></svg>
+      </div>
+      <span class="nav-label">Discover</span>
+    </div>
+    <div class="nav-item" data-page="collection" onclick="switchPage('collection')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <span class="nav-label">Collection</span>
+    </div>
+    <div class="nav-item" data-page="expeditions" onclick="switchPage('expeditions')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 17l9-13 9 13"/><path d="M3 17h18"/></svg>
+      </div>
+      <span class="nav-label">Expeditions</span>
+    </div>
+    <div class="nav-item" data-page="profile" onclick="switchPage('profile')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+      </div>
+      <span class="nav-label">Profile</span>
+    </div>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ============================================================
+     ARCHIVIST FLOATING BUTTON
+     ============================================================ -->
+<button id="archivist-btn" onclick="toggleArchivist()" aria-label="Open The Archivist">
+  📜
+  <span class="archivist-pulse"></span>
+</button>
+
+<!-- Backdrop -->
+<div class="backdrop" id="backdrop" onclick="closeArchivist()"></div>
+
+<!-- Archivist Panel -->
+<div id="archivist-panel">
+  <div class="panel-handle"></div>
+  <div class="panel-header">
+    <div class="panel-avatar">📜</div>
+    <div>
+      <div class="panel-name">The Archivist</div>
+      <div class="panel-status">● Online — Cultural Intelligence Unit</div>
+    </div>
+    <button class="close-panel" onclick="closeArchivist()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg msg-archivist">
+      <div class="msg-note">Archivist Note</div>
+      This vocal technique evolved in open grassland environments where sound needed to travel long distances. The technique of throat-singing creates harmonics that can cut through wind and ambient noise at remarkable distances.
+    </div>
+    <div class="msg msg-archivist">
+      You have uncovered 147 cultures so far. The archive grows richer with each discovery. What do you wish to explore today?
+    </div>
+  </div>
+  <div class="chat-input-wrap">
+    <input class="chat-input" id="chatInput" type="text" placeholder="Ask the Archivist anything..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="chat-send" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================
+     REGION MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="regionModal" onclick="closeModal('regionModal')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-icon" id="mRegionIcon"></div>
+      <div class="modal-title" id="mRegionTitle"></div>
+      <div class="modal-sub" id="mRegionDesc"></div>
+      <div class="divider"></div>
+      <div class="section-label">Historical Significance</div>
+      <div id="mRegionHistory" style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px"></div>
+      <div class="section-label">Featured Traditions</div>
+      <div id="mRegionTraditions" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
+      <div class="detail-rows">
+        <div class="detail-row">
+          <div class="dr-label">Artifacts Discovered</div>
+          <div class="dr-value" id="mRegionArtifacts"></div>
+        </div>
+        <div class="detail-row">
+          <div class="dr-label">Region Completion</div>
+          <div class="dr-value" id="mRegionCompletion" style="color:var(--accent)"></div>
+        </div>
+        <div class="detail-row">
+          <div class="dr-label">Archive Status</div>
+          <div class="dr-value"><span class="badge badge-success">Active Research</span></div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ARTIFACT MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="artifactModal" onclick="closeModal('artifactModal')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-icon" id="mArtIcon"></div>
+      <div class="modal-title" id="mArtTitle"></div>
+      <div class="modal-sub" id="mArtDesc"></div>
+      <div class="divider"></div>
+
+      <!-- Sound DNA -->
+      <div class="dna-section">
+        <div class="section-label" style="margin-bottom:8px">Sound DNA Similarity</div>
+        <div id="dnaList"></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="detail-rows" id="artDetailRows"></div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+
+const REGIONS = [
+  { id:'arctic',      icon:'🧊', name:'Arctic Circle',       sub:'8 traditions', pct:62, color:'rgba(125,211,252,.12)',
+    desc:'The frozen expanse of human endurance. Home to Inuit, Sámi, and Chukchi cultures.',
+    history:'Arctic peoples developed vocal traditions that mirror the extreme environment — sparse, sustained, and built on silence as much as sound. The harsh landscape shaped every note.',
+    traditions:['Katajjaq','Joik','Overtone','Drum Dance'], artifacts:'23', completion:'62%' },
+  { id:'silkroad',    icon:'🏺', name:'Silk Road',           sub:'14 traditions', pct:48, color:'rgba(245,158,11,.1)',
+    desc:'The ancient corridors of exchange stretching from Chang\'an to Constantinople.',
+    history:'3000 years of musical exchange between empires. Every instrument and scale on this route is a palimpsest of conquered and conquering cultures.',
+    traditions:['Mugham','Dutar','Rawap','Setar','Tanbur'], artifacts:'41', completion:'48%' },
+  { id:'andes',       icon:'🏔️', name:'Andes Highlands',    sub:'11 traditions', pct:35, color:'rgba(74,222,128,.08)',
+    desc:'Ancient high-altitude civilizations of the Inca and pre-Columbian cultures.',
+    history:'At altitudes above 4,000m, Andean music carries a sacred weight — pentatonic scales developed in isolation, instruments carved from condor bones and ceramic.',
+    traditions:['Huayno','Sikuri','Pinkillu','Charango'], artifacts:'29', completion:'35%' },
+  { id:'pacific',     icon:'🌊', name:'Pacific Islands',     sub:'9 traditions', pct:28, color:'rgba(56,189,248,.08)',
+    desc:'Oceanic civilizations spanning 10,000 islands across the largest ocean on Earth.',
+    history:'The Austronesian expansion — 3,500 years of ocean navigation encoded in song. Polynesian chant carries star charts, genealogies, and navigational charts in its rhythms.',
+    traditions:['Oli','Hula','Slit Drum','Pate'], artifacts:'18', completion:'28%' },
+  { id:'amazon',      icon:'🌿', name:'Amazon Basin',        sub:'22 traditions', pct:19, color:'rgba(74,222,128,.1)',
+    desc:'The world\'s largest rainforest harboring over 400 distinct indigenous groups.',
+    history:'The densest linguistic and musical diversity on Earth. Amazon basin traditions are living archives of humanity\'s relationship with non-human life.',
+    traditions:['Marubo','Kayapó','Shipibo Icaro','Juruti'], artifacts:'12', completion:'19%' },
+  { id:'himalaya',    icon:'⛰️', name:'Himalayan Belt',      sub:'7 traditions', pct:44, color:'rgba(167,139,250,.1)',
+    desc:'Buddhist monasteries and pre-Buddhist Bön traditions across the roof of the world.',
+    history:'Tibetan ceremonial music operates at frequencies designed to alter consciousness — long horns (dung chen) can produce notes too low for the human body to fully perceive.',
+    traditions:['Nangma','Cham Dance','Ling Gesar','Lhamo'], artifacts:'27', completion:'44%' },
+  { id:'med',         icon:'🏛️', name:'Mediterranean Basin', sub:'18 traditions', pct:71, color:'rgba(251,191,36,.1)',
+    desc:'The cradle of Western civilization — Greek, Roman, Ottoman, and North African legacies.',
+    history:'The Mediterranean was the first global music market. Ancient Greek modes became Byzantine chant became flamenco. Every scale here carries three civilizations.',
+    traditions:['Maqam','Rebetiko','Flamenco','Tarantella'], artifacts:'58', completion:'71%' },
+  { id:'sahara',      icon:'🏜️', name:'Sahara Corridor',    sub:'6 traditions', pct:22, color:'rgba(251,113,133,.08)',
+    desc:'Trans-Saharan trade routes linking Sub-Saharan Africa to North Africa.',
+    history:'Tuareg, Berber, and Fulani traditions created the sonic language of the world\'s greatest desert — music that navigates by sound when landmarks disappear.',
+    traditions:['Tende','Imzad','Gnawa','Tidinit'], artifacts:'14', completion:'22%' },
+  { id:'steppe',      icon:'🐎', name:'Eurasian Steppe',     sub:'12 traditions', pct:57, color:'rgba(125,211,252,.1)',
+    desc:'The vast grasslands from Hungary to Mongolia — home to nomadic empires.',
+    history:'The steppe is where Khöömei was born — where an unbroken horizon demanded a voice that could fill infinite space. Nomadic traditions carry maps in their melodies.',
+    traditions:['Khöömei','Dombra','Igil','Long Song'], artifacts:'35', completion:'57%' },
+];
+
+const ARTIFACTS = [
+  { id:'khoomi',    icon:'🎤', name:'Khöömei',   origin:'Mongolia',   rarity:96, rarityColor:'#A78BFA',
+    bg:'rgba(167,139,250,.12)', desc:'Overtone throat singing from the Mongolian and Tuvan steppe. A single voice produces simultaneous harmonic tones, mimicking wind, water, and the eternal grassland.',
+    dna:[{r:'Mongolia',p:92},{r:'Siberia',p:84},{r:'Arctic Canada',p:73},{r:'Tuva',p:99}],
+    details:[{l:'Category',v:'Vocal Tradition'},{l:'Historical Depth',v:'~1200 years'},{l:'UNESCO Status',v:'Protected'},{l:'Rarity',v:'Legendary'}] },
+  { id:'shakuhachi',icon:'🎋', name:'Shakuhachi', origin:'Japan',      rarity:81, rarityColor:'#4ADE80',
+    bg:'rgba(74,222,128,.1)', desc:'A Japanese end-blown flute made from bamboo root. Originally used by Zen Buddhist monks as a meditative instrument — each breath a form of prayer.',
+    dna:[{r:'Japan',p:97},{r:'China',p:71},{r:'Korea',p:58},{r:'Tibet',p:44}],
+    details:[{l:'Category',v:'Aerophone'},{l:'Historical Depth',v:'~700 years'},{l:'Material',v:'Madake bamboo'},{l:'Rarity',v:'Rare'}] },
+  { id:'djembe',    icon:'🥁', name:'Djembe',    origin:'West Africa', rarity:74, rarityColor:'#FBBF24',
+    bg:'rgba(245,158,11,.1)', desc:'The communal heartbeat of West Africa. A goblet drum whose resonance builds social cohesion — in Mande tradition, you cannot refuse a djembe circle.',
+    dna:[{r:'Guinea',p:98},{r:'Mali',p:94},{r:'Senegal',p:89},{r:'Ivory Coast',p:82}],
+    details:[{l:'Category',v:'Membranophone'},{l:'Historical Depth',v:'~800 years'},{l:'Tradition',v:'Mande Griot'},{l:'Rarity',v:'Uncommon'}] },
+  { id:'joik',      icon:'❄️', name:'Joik',       origin:'Scandinavia', rarity:88, rarityColor:'#7DD3FC',
+    bg:'rgba(125,211,252,.1)', desc:'Sámi personal spirit songs from northern Scandinavia. Each joik belongs to a person, animal, or place — not composed about them, but embodying their essence.',
+    dna:[{r:'Sámi Territory',p:99},{r:'Arctic Norway',p:91},{r:'Inuit',p:61},{r:'Yakutia',p:47}],
+    details:[{l:'Category',v:'Vocal Tradition'},{l:'Historical Depth',v:'~2000 years'},{l:'Endangerment',v:'Vulnerable'},{l:'Rarity',v:'Epic'}] },
+  { id:'kecak',     icon:'🌴', name:'Kecak',      origin:'Bali',        rarity:79, rarityColor:'#F59E0B',
+    bg:'rgba(245,158,11,.08)', desc:'The Balinese fire dance chorus — 50 to 150 men chanting "cak" in polyrhythmic waves, enacting episodes from the Ramayana in living sound.',
+    dna:[{r:'Bali',p:100},{r:'Java',p:72},{r:'India (Ramayana)',p:65},{r:'Borneo',p:38}],
+    details:[{l:'Category',v:'Ritual Theater'},{l:'Historical Depth',v:'~90 years'},{l:'Origin',v:'Colonial period synthesis'},{l:'Rarity',v:'Rare'}] },
+  { id:'charango',  icon:'🎸', name:'Charango',   origin:'Andes',       rarity:68, rarityColor:'#4ADE80',
+    bg:'rgba(74,222,128,.08)', desc:'A small 10-string lute from the Andes, traditionally built from an armadillo shell. The sound of Andean longing — bright, urgent, impossibly melancholic.',
+    dna:[{r:'Peru/Bolivia',p:97},{r:'Chile',p:84},{r:'Argentina',p:79},{r:'Ecuador',p:61}],
+    details:[{l:'Category',v:'Chordophone'},{l:'Historical Depth',v:'~300 years'},{l:'Strings',v:'5 courses / 10 strings'},{l:'Rarity',v:'Uncommon'}] },
+  { id:'taiko',     icon:'🎯', name:'Taiko',      origin:'Japan',       rarity:72, rarityColor:'#FB7185',
+    bg:'rgba(251,113,133,.08)', desc:'Japanese ceremonial drums dating back 2000 years. Taiko performance is as much martial art as music — practitioners train for years to achieve the precise strike.',
+    dna:[{r:'Japan',p:99},{r:'Korea (Buk)',p:74},{r:'China',p:63},{r:'Okinawa',p:88}],
+    details:[{l:'Category',v:'Membranophone'},{l:'Historical Depth',v:'~2000 years'},{l:'Form',v:'Ensemble tradition'},{l:'Rarity',v:'Uncommon'}] },
+  { id:'sitar',     icon:'🎶', name:'Sitar',      origin:'North India', rarity:85, rarityColor:'#A78BFA',
+    bg:'rgba(167,139,250,.1)', desc:'The instrument that carries India\'s entire musical philosophy. 18-21 strings, 20 sympathetic resonators — the sitar hums with notes you haven\'t played yet.',
+    dna:[{r:'North India',p:98},{r:'Pakistan',p:91},{r:'Bangladesh',p:85},{r:'Afghanistan',p:67}],
+    details:[{l:'Category',v:'Chordophone'},{l:'Historical Depth',v:'~700 years'},{l:'Strings',v:'18–21 + resonators'},{l:'Rarity',v:'Epic'}] },
+];
+
+const EXPEDITIONS = [
+  { id:'arctic', icon:'🧊', name:'Voices of the Arctic',   region:'Arctic Circle',
+    color:'#0A1F3F', pct:68,
+    desc:'A six-chapter journey into the sonic landscape of the world\'s northernmost human civilizations.',
+    subtitle:'From Sámi joiks in Norway to Inuit katajjaq in Baffin Island — trace the common thread of voices shaped by ice, darkness, and the aurora.',
+    milestones:[
+      { year:'3000 BCE', title:'First Contact', desc:'The earliest acoustic records of Arctic peoples — bone flutes found under permafrost in Siberia.', state:'done', reward:'10 Archive Points' },
+      { year:'1200 CE',  title:'Sámi Migration', desc:'The westward migration of Sámi people carries a musical tradition across 3000 kilometers of tundra.', state:'done', reward:'Joik Fragment Unlocked' },
+      { year:'1700 CE',  title:'Colonial Contact', desc:'European missionaries encounter Arctic music and record — and attempt to suppress — indigenous vocal practices.', state:'done', reward:'Historical Document' },
+      { year:'1922',     title:'First Recording', desc:'Ethnomusicologist Zoltán Kodály dispatches a student to record Inuit singing in Greenland. The wax cylinders survive.', state:'active', reward:'Rare Archive Reel' },
+      { year:'1972',     title:'Revitalization', desc:'UNESCO designates Arctic vocal traditions as endangered. A generation of indigenous scholars begin the documentation project.', state:'', reward:'' },
+      { year:'Present',  title:'Living Archive', desc:'Today, young Sámi artists blend joik with electronic music — the archive breathes and changes.', state:'', reward:'' },
+    ]
+  },
+  { id:'silkroad', icon:'🏺', name:'Across the Silk Road',  region:'Silk Road',
+    color:'#2A1A08', pct:40,
+    desc:'Follow the merchants, scholars, and musicians who carried sound across 12,000 kilometers.',
+    subtitle:'The greatest music exchange in human history — from Tang Dynasty courts to Ottoman palaces, trace the melodic threads that cross every border.',
+    milestones:[
+      { year:'114 BCE',  title:'Route Established', desc:'Han Emperor Wu opens formal diplomatic ties westward. Musicians travel with diplomats.', state:'done', reward:'Dynasty Archive' },
+      { year:'700 CE',   title:'Silk Road Peak', desc:'The Tang Dynasty collects instruments from 14 countries. Chang\'an becomes the first world music capital.', state:'done', reward:'Tang Court Map' },
+      { year:'1241',     title:'Mongol Pax', desc:'Pax Mongolica opens the entire route. Venetian travelers bring Persian music theory to Europe.', state:'active', reward:'Mongol Fragment' },
+      { year:'1400',     title:'Ottoman Synthesis', desc:'The Ottoman maqam system synthesizes Arabic, Persian, and Byzantine scales into a unified theory.', state:'', reward:'' },
+      { year:'1890',     title:'The Last Caravans', desc:'With railroads replacing camels, the last musical caravans traverse the route for the final time.', state:'', reward:'' },
+    ]
+  },
+  { id:'steppe', icon:'🐎', name:'Nomadic Worlds',          region:'Eurasian Steppe',
+    color:'#1A150A', pct:25,
+    desc:'The vast grasslands that produced the world\'s greatest nomadic empires and the sound of infinite sky.',
+    subtitle:'Khöömei, the long song, and the dombra — music built for a horizon that never ends and a people always moving.',
+    milestones:[
+      { year:'500 BCE',  title:'Scythian Origins', desc:'The earliest steppe horsemen develop a musical tradition as mobile as their civilization.', state:'done', reward:'Scythian Fragment' },
+      { year:'1206',     title:'Mongol Empire', desc:'Genghis Khan\'s empire spans from Korea to Hungary. His musicians absorb and carry traditions across continents.', state:'active', reward:'Imperial Archive' },
+      { year:'1500',     title:'Tuvan Throat Song', desc:'Isolated Tuvan communities refine Khöömei into the sophisticated tradition known today.', state:'', reward:'' },
+      { year:'Present',  title:'Contemporary Steppe', desc:'Yat-Kha and Huun-Huur-Tu bring throat singing to global stages.', state:'', reward:'' },
+    ]
+  },
+  { id:'pacific', icon:'🌊', name:'Oceanic Civilizations',  region:'Pacific Islands',
+    color:'#061828', pct:15,
+    desc:'3,500 years of ocean navigation — and the music that made it possible.',
+    subtitle:'Polynesian chant contains star charts. The voice was the compass.',
+    milestones:[
+      { year:'1500 BCE', title:'Austronesian Departure', desc:'From Taiwan, the greatest migration in human prehistory begins. Music travels with the voyagers.', state:'done', reward:'Navigation Song' },
+      { year:'1000 CE',  title:'Hawaii Discovered', desc:'Polynesian navigators reach Hawaii by star, current, and song. The hula originates as a navigation record.', state:'active', reward:'Hula Fragment' },
+      { year:'1778',     title:'Cook\'s Journals', desc:'Captain Cook\'s naturalists make the first Western transcriptions of Polynesian music.', state:'', reward:'' },
+      { year:'Present',  title:'The Hawaiian Renaissance', desc:'A cultural revival restores hula, oli chant, and traditional instruments after near-extinction.', state:'', reward:'' },
+    ]
+  },
+  { id:'andes', icon:'🏔️', name:'Songs of the Andes',      region:'Andes Highlands',
+    color:'#0A1A0A', pct:8,
+    desc:'High altitude. Thin air. The most isolated music on Earth.',
+    subtitle:'Pentatonic scales born above 4000 meters — music that sounds like the sky.',
+    milestones:[
+      { year:'1200 BCE', title:'Chavin Culture', desc:'Pre-Inca cultures produce ceramic ocarinas — some of the oldest musical artifacts in the Americas.', state:'done', reward:'Ancient Ocarina' },
+      { year:'1400',     title:'Inca Empire', desc:'The Inca develop a complex system of music for agriculture, war, ceremony, and astronomy.', state:'active', reward:'Inca Archive' },
+      { year:'1532',     title:'Spanish Conquest', desc:'Conquistadors attempt to silence indigenous music. Hidden in remote villages, the traditions survive.', state:'', reward:'' },
+      { year:'1960',     title:'Folklorismo Movement', desc:'Andean music reaches global audiences through artists like Yma Sumac and Los Jaivas.', state:'', reward:'' },
+      { year:'Present',  title:'Living Highland', desc:'Contemporary Andean music fuses charango with hip-hop. The 3000-year-old pentatonic scale remains.', state:'', reward:'' },
+    ]
+  },
+];
+
+const ACHIEVEMENTS = [
+  { icon:'🏆', name:'First Discovery',     desc:'Identified your first acoustic tradition', bg:'rgba(245,158,11,.12)', locked:false },
+  { icon:'🧭', name:'Field Researcher IV', desc:'Reached Research Rank IV', bg:'rgba(125,211,252,.12)', locked:false },
+  { icon:'🌏', name:'Globe Trotter',       desc:'Explored all 9 world regions', bg:'rgba(74,222,128,.12)', locked:false },
+  { icon:'📼', name:'Rare Frequency',      desc:'Uncovered a Legendary rarity artifact', bg:'rgba(167,139,250,.12)', locked:false },
+  { icon:'🎯', name:'Precision Ear',       desc:'Identify 50 recordings without error', bg:'rgba(251,113,133,.12)', locked:true },
+  { icon:'🗺️', name:'The Cartographer',   desc:'Complete every region in the archive', bg:'rgba(245,158,11,.12)', locked:true },
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentPage = 'discover';
+let isPlaying = false;
+let playInterval = null;
+let audioSeconds = 0;
+const AUDIO_TOTAL = 167;
+let answered = false;
+let archivistOpen = false;
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector('[data-page="' + id + '"]').classList.add('active');
+  currentPage = id;
+
+  if (id === 'collection') animateRing();
+  if (id === 'explore') initGlobe();
+}
+
+/* ============================================================
+   AUDIO PLAYER
+   ============================================================ */
+function buildWaveform() {
+  const wv = document.getElementById('waveform');
+  wv.innerHTML = '';
+  const heights = [];
+  for (let i = 0; i < 48; i++) {
+    const h = 8 + Math.random() * 28;
+    heights.push(h);
+    const bar = document.createElement('div');
+    bar.className = 'wave-bar';
+    bar.style.height = h + 'px';
+    wv.appendChild(bar);
+  }
+  return heights;
+}
+const waveHeights = buildWaveform();
+
+function updateWaveform() {
+  const bars = document.querySelectorAll('.wave-bar');
+  const played = Math.floor((audioSeconds / AUDIO_TOTAL) * bars.length);
+  bars.forEach((b, i) => {
+    b.classList.remove('played','active');
+    if (i < played) b.classList.add('played');
+    else if (i === played) b.classList.add('active');
+  });
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2,'0');
+}
+
+function togglePlay() {
+  isPlaying = !isPlaying;
+  const icon = document.getElementById('play-icon');
+  if (isPlaying) {
+    icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    playInterval = setInterval(() => {
+      audioSeconds = Math.min(audioSeconds + 0.5, AUDIO_TOTAL);
+      document.getElementById('audioProgress').style.width = (audioSeconds / AUDIO_TOTAL * 100) + '%';
+      document.getElementById('currentTime').textContent = formatTime(audioSeconds);
+      updateWaveform();
+      if (audioSeconds >= AUDIO_TOTAL) {
+        clearInterval(playInterval);
+        isPlaying = false;
+        icon.innerHTML = '<polygon points="6,4 20,12 6,20"/>';
+      }
+    }, 500);
+  } else {
+    clearInterval(playInterval);
+    icon.innerHTML = '<polygon points="6,4 20,12 6,20"/>';
+  }
+}
+
+function seekAudio(e) {
+  const bar = e.currentTarget;
+  const pct = e.offsetX / bar.offsetWidth;
+  audioSeconds = pct * AUDIO_TOTAL;
+  document.getElementById('audioProgress').style.width = (pct * 100) + '%';
+  document.getElementById('currentTime').textContent = formatTime(audioSeconds);
+  updateWaveform();
+}
+
+/* ============================================================
+   DISCOVER — ANSWER LOGIC
+   ============================================================ */
+function selectAnswer(el, correct) {
+  if (answered) return;
+  answered = true;
+
+  // Stop audio
+  if (isPlaying) togglePlay();
+
+  // Mark all cards
+  document.querySelectorAll('.choice-card').forEach(c => {
+    const isCorrect = c.onclick.toString().includes('true');
+    if (isCorrect) {
+      c.classList.add('correct');
+      c.querySelector('.choice-check').textContent = '✓';
+    } else {
+      c.classList.add('wrong');
+      c.querySelector('.choice-check').textContent = '✗';
+    }
+    c.style.pointerEvents = 'none';
+  });
+
+  // Show analysis after delay
+  setTimeout(() => {
+    document.getElementById('choices-section').style.display = 'none';
+    const as = document.getElementById('analysis-screen');
+    as.classList.add('visible');
+    as.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 900);
+}
+
+function resetDiscovery() {
+  answered = false;
+  audioSeconds = 0;
+  document.getElementById('audioProgress').style.width = '0%';
+  document.getElementById('currentTime').textContent = '0:00';
+  document.getElementById('play-icon').innerHTML = '<polygon points="6,4 20,12 6,20"/>';
+  document.querySelectorAll('.choice-card').forEach(c => {
+    c.classList.remove('correct','wrong','selected');
+    c.querySelector('.choice-check').textContent = '';
+    c.style.pointerEvents = '';
+  });
+  document.getElementById('choices-section').style.display = '';
+  document.getElementById('analysis-screen').classList.remove('visible');
+  updateWaveform();
+}
+
+/* ============================================================
+   GLOBE CANVAS
+   ============================================================ */
+let globeInited = false;
+let globeFrame = null;
+
+function initGlobe() {
+  if (globeInited) return;
+  globeInited = true;
+
+  const canvas = document.getElementById('globeCanvas');
+  const container = canvas.parentElement;
+  const size = container.offsetWidth;
+  canvas.width  = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+  const cx = size / 2, cy = size / 2;
+  const r  = size * 0.38;
+
+  // Dot data — lat/lng of regions
+  const dots = [
+    { name:'Arctic',       lat: 72, lng: -25 },
+    { name:'Silk Road',    lat: 42, lng:  72 },
+    { name:'Andes',        lat:-15, lng: -72 },
+    { name:'Pacific',      lat: -8, lng:-160 },
+    { name:'Amazon',       lat: -5, lng: -62 },
+    { name:'Himalaya',     lat: 30, lng:  85 },
+    { name:'Med',          lat: 37, lng:  18 },
+    { name:'Sahara',       lat: 22, lng:  12 },
+    { name:'Steppe',       lat: 48, lng:  95 },
+  ];
+
+  let angle = 0;
+
+  function project(lat, lng, rotY) {
+    const φ = lat * Math.PI / 180;
+    const λ = (lng + rotY) * Math.PI / 180;
+    const x = Math.cos(φ) * Math.sin(λ);
+    const y = Math.sin(φ);
+    const z = Math.cos(φ) * Math.cos(λ);
+    return { x: cx + r * x, y: cy - r * y, z };
+  }
+
+  function drawGlobe() {
+    ctx.clearRect(0, 0, size, size);
+
+    // Globe background
+    const grad = ctx.createRadialGradient(cx - r*0.2, cy - r*0.2, r*0.1, cx, cy, r);
+    grad.addColorStop(0, '#0E2040');
+    grad.addColorStop(1, '#040B1A');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Latitude lines
+    for (let lat = -60; lat <= 60; lat += 30) {
+      ctx.beginPath();
+      let first = true;
+      for (let lng = -180; lng <= 180; lng += 5) {
+        const p = project(lat, lng, angle);
+        if (p.z < 0) { first = true; continue; }
+        if (first) { ctx.moveTo(p.x, p.y); first = false; }
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = 'rgba(125,211,252,0.06)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    // Longitude lines
+    for (let lng = -180; lng < 180; lng += 30) {
+      ctx.beginPath();
+      let first = true;
+      for (let lat = -80; lat <= 80; lat += 5) {
+        const p = project(lat, lng, angle);
+        if (p.z < 0) { first = true; continue; }
+        if (first) { ctx.moveTo(p.x, p.y); first = false; }
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = 'rgba(125,211,252,0.04)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    // Globe border
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(125,211,252,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Region dots
+    const t = Date.now() / 800;
+    dots.forEach((d, i) => {
+      const p = project(d.lat, d.lng, angle);
+      if (p.z < 0.1) return;
+      const pulse = 0.7 + 0.3 * Math.sin(t + i * 0.9);
+      const dotR = 3.5 * pulse;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, dotR + 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(125,211,252,0.08)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(125,211,252,${0.6 * p.z})`;
+      ctx.fill();
+    });
+
+    angle += 0.3;
+    globeFrame = requestAnimationFrame(drawGlobe);
+  }
+
+  drawGlobe();
+}
+
+/* ============================================================
+   REGIONS GRID
+   ============================================================ */
+(function buildRegions() {
+  const grid = document.getElementById('regionsGrid');
+  REGIONS.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'region-card';
+    el.style.setProperty('--rc-color', r.color);
+    el.innerHTML = `
+      <div class="rc-icon">${r.icon}</div>
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-count">${r.sub}</div>
+      <div class="rc-progress"><div class="rc-progress-fill" style="width:${r.pct}%"></div></div>
+    `;
+    el.onclick = () => openRegionModal(r);
+    grid.appendChild(el);
+  });
+})();
+
+/* ============================================================
+   COLLECTION GRID
+   ============================================================ */
+(function buildCollection() {
+  const grid = document.getElementById('collectionGrid');
+  ARTIFACTS.forEach(a => {
+    const el = document.createElement('div');
+    el.className = 'artifact-card';
+    el.innerHTML = `
+      <div class="artifact-icon" style="background:${a.bg}">${a.icon}</div>
+      <div class="artifact-name">${a.name}</div>
+      <div class="artifact-origin">${a.origin}</div>
+      <div class="rarity-bar"><div class="rarity-fill" style="width:${a.rarity}%;background:${a.rarityColor}"></div></div>
+    `;
+    el.onclick = () => openArtifactModal(a);
+    grid.appendChild(el);
+  });
+})();
+
+/* ============================================================
+   EXPEDITIONS LIST
+   ============================================================ */
+(function buildExpeditions() {
+  const list = document.getElementById('expeditionList');
+  const bannerColors = ['#0A1F3F','#2A1A08','#1A150A','#061828','#0A1A0A'];
+  EXPEDITIONS.forEach((exp, i) => {
+    const el = document.createElement('div');
+    el.className = 'expedition-card';
+    el.innerHTML = `
+      <div class="expedition-banner" style="background:${bannerColors[i] || '#0A1828'}">
+        <div class="exp-region-icon">${exp.icon}</div>
+        <div style="position:relative;z-index:1">
+          <div class="section-label">${exp.region}</div>
+        </div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-name">${exp.name}</div>
+        <div class="exp-desc">${exp.desc}</div>
+        <div class="exp-meta">
+          <div class="exp-progress-wrap">
+            <div class="exp-progress-bar"><div class="exp-progress-fill" style="width:${exp.pct}%"></div></div>
+            <div class="exp-pct">${exp.pct}% explored</div>
+          </div>
+          <span class="badge ${exp.pct > 50 ? 'badge-success' : exp.pct > 20 ? 'badge-accent' : 'badge-muted'}">${exp.pct > 50 ? 'Active' : exp.pct > 0 ? 'In Progress' : 'Locked'}</span>
+        </div>
+      </div>
+    `;
+    el.onclick = () => openExpedition(exp);
+    list.appendChild(el);
+  });
+})();
+
+/* ============================================================
+   ACHIEVEMENTS
+   ============================================================ */
+(function buildAchievements() {
+  const list = document.getElementById('achievementList');
+  ACHIEVEMENTS.forEach(a => {
+    const el = document.createElement('div');
+    el.className = 'achievement' + (a.locked ? ' ach-locked' : '');
+    el.innerHTML = `
+      <div class="ach-icon" style="background:${a.bg}">${a.locked ? '🔒' : a.icon}</div>
+      <div>
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+})();
+
+/* ============================================================
+   ARCHIVE RING ANIMATION
+   ============================================================ */
+function animateRing() {
+  const ring = document.getElementById('archiveRing');
+  if (!ring) return;
+  const circumference = 339;
+  const pct = 0.412;
+  const offset = circumference * (1 - pct);
+  setTimeout(() => {
+    ring.style.strokeDashoffset = offset;
+  }, 200);
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function openRegionModal(r) {
+  document.getElementById('mRegionIcon').textContent = r.icon;
+  document.getElementById('mRegionTitle').textContent = r.name;
+  document.getElementById('mRegionDesc').textContent = r.desc;
+  document.getElementById('mRegionHistory').textContent = r.history;
+  document.getElementById('mRegionArtifacts').textContent = r.artifacts;
+  document.getElementById('mRegionCompletion').textContent = r.completion;
+  const tDiv = document.getElementById('mRegionTraditions');
+  tDiv.innerHTML = r.traditions.map(t => `<span class="badge badge-muted">${t}</span>`).join('');
+  openModal('regionModal');
+}
+
+function openArtifactModal(a) {
+  document.getElementById('mArtIcon').textContent = a.icon;
+  document.getElementById('mArtTitle').textContent = a.name;
+  document.getElementById('mArtDesc').textContent = a.desc;
+
+  // DNA bars
+  const dnaList = document.getElementById('dnaList');
+  dnaList.innerHTML = a.dna.map(d => `
+    <div class="dna-bar">
+      <div class="dna-region">${d.r}</div>
+      <div class="dna-track"><div class="dna-fill" data-pct="${d.p}"></div></div>
+      <div class="dna-pct">${d.p}%</div>
+    </div>
+  `).join('');
+
+  // Detail rows
+  const rows = document.getElementById('artDetailRows');
+  rows.innerHTML = a.details.map(d => `
+    <div class="detail-row">
+      <div class="dr-label">${d.l}</div>
+      <div class="dr-value">${d.v}</div>
+    </div>
+  `).join('');
+
+  openModal('artifactModal');
+
+  // Animate DNA bars
+  setTimeout(() => {
+    document.querySelectorAll('#dnaList .dna-fill').forEach(b => {
+      b.style.width = b.dataset.pct + '%';
+    });
+  }, 100);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+/* ============================================================
+   EXPEDITION DETAIL
+   ============================================================ */
+function openExpedition(exp) {
+  document.getElementById('detailIcon').textContent = exp.icon;
+  document.getElementById('detailRegion').textContent = exp.region;
+  document.getElementById('detailTitle').textContent = exp.name;
+  document.getElementById('detailSubtitle').textContent = exp.subtitle;
+  document.getElementById('detailBanner').style.background =
+    `linear-gradient(160deg, ${exp.color} 0%, #070B14 100%)`;
+
+  const ml = document.getElementById('milestoneList');
+  // Keep the milestone-line div
+  ml.innerHTML = '<div class="milestone-line"></div>';
+
+  exp.milestones.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'milestone' + (m.state === 'done' ? ' done' : m.state === 'active' ? ' active' : '');
+    el.innerHTML = `
+      <div class="m-dot">${m.state === 'done' ? '✓' : m.state === 'active' ? '◉' : '○'}</div>
+      <div class="m-info">
+        <div class="m-year">${m.year}</div>
+        <div class="m-title">${m.title}</div>
+        <div class="m-desc">${m.desc}</div>
+        ${m.reward ? `<div class="m-reward">🏆 ${m.reward}</div>` : ''}
+      </div>
+    `;
+    ml.appendChild(el);
+  });
+
+  document.getElementById('expedition-detail').classList.add('open');
+}
+
+function closeExpedition() {
+  document.getElementById('expedition-detail').classList.remove('open');
+}
+
+/* ============================================================
+   ARCHIVIST
+   ============================================================ */
+const archivistReplies = [
+  'Fascinating inquiry. The acoustic tradition you\'re describing has roots that predate written history by at least 2000 years.',
+  'Oral traditions are the world\'s most resilient archive. Unlike manuscripts, they adapt — they breathe. Each generation reshapes the memory.',
+  'The relationship between geography and melody is absolute. You cannot separate the sound from the terrain that shaped it.',
+  'What you\'re hearing is not just music. It\'s a compressed archive of climate, migration, conflict, and survival.',
+  'Every instrument is a theory of sound made physical. The lute, the drum, the flute — each represents a different philosophy of vibration.',
+  'Silence is the archive\'s most misunderstood element. The pauses carry as much cultural weight as the notes.',
+  'The 412 cultures we\'ve documented represent roughly 40% of what we believe existed before the 18th century.',
+  'A culture\'s musical scale reveals its mathematical understanding of the universe. Western 12-tone equal temperament is a relatively recent invention.',
+];
+let replyIndex = 0;
+
+function toggleArchivist() {
+  archivistOpen = !archivistOpen;
+  document.getElementById('archivist-panel').classList.toggle('open', archivistOpen);
+  document.getElementById('backdrop').classList.toggle('visible', archivistOpen);
+}
+function closeArchivist() {
+  archivistOpen = false;
+  document.getElementById('archivist-panel').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('visible');
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msgs = document.getElementById('chatMessages');
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'msg msg-user';
+  userMsg.textContent = text;
+  msgs.appendChild(userMsg);
+
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Typing delay
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'msg msg-archivist';
+    reply.innerHTML = `<div class="msg-note">Archivist Note</div>${archivistReplies[replyIndex % archivistReplies.length]}`;
+    msgs.appendChild(reply);
+    msgs.scrollTop = msgs.scrollHeight;
+    replyIndex++;
+  }, 800);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  buildWaveform();
+  // Slight stagger on initial page elements
+  document.querySelectorAll('.page.active .card, .page.active .hero-card, .page.active .daily-card').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = `opacity .4s ease ${i * 0.06}s, transform .4s ease ${i * 0.06}s`;
+    setTimeout(() => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, 50);
+  });
+});
+</script>
+</body>
+</html>
